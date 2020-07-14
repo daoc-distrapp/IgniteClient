@@ -1,6 +1,8 @@
 package daoc.ignite;
 
 import org.apache.ignite.client.ClientCache;
+import org.apache.ignite.client.ClientTransaction;
+import org.apache.ignite.client.ClientTransactions;
 import org.apache.ignite.client.IgniteClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -19,15 +21,25 @@ public class IgniteClientApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		// TODO Auto-generated method stub
 		ClientCache<String, Integer> cache = client.getOrCreateCache("miCache");
+		ClientTransactions cts = client.transactions();
 		
 		cache.put("uno", 1);
-		cache.put("dos", 2);
+		cache.put("dos", 2);		
+		
+		try (ClientTransaction ct = cts.txStart()) {
+			Integer counter = cache.get("counter");
+			if(counter == null) {
+				cache.put("counter", 1);
+			} else {
+				cache.put("counter", counter + 1);
+			}
+			ct.commit();
+		}
 		
 		System.out.println(cache.get("uno"));
 		System.out.println(cache.get("dos"));
-		
+		System.out.println(cache.get("counter"));
 	}
 	
 }

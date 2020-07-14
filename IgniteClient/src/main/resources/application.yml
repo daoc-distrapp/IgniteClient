@@ -1,4 +1,2 @@
 ignite-client:
-  addresses: us1.local:10800
-  timeout: 10000
-  tcpNoDelay: false
+  addresses: us1.local:10801, us1.local:10802
